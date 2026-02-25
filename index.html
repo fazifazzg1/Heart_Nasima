@@ -3,30 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <title>3D Rotating Heart Style</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         body {
             margin: 0;
             padding: 0;
             background-color: #000;
             overflow: hidden;
-            font-family: 'Consolas', 'Courier New', monospace;
+            font-family: 'Great Vibes', cursive;
         }
         canvas {
             display: block;
         }
-        /* Стиль из фото для справки и возможного использования */
-        .love_word {
+        #controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(20, 20, 20, 0.9);
+            padding: 20px;
+            border-radius: 12px;
+            color: #fff;
+            font-family: 'Roboto', sans-serif;
+            border: 1px solid #333;
+            width: 280px;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            transition: opacity 0.3s;
+        }
+        #controls h3 {
+            margin: 0 0 15px 0;
+            font-size: 18px;
+            text-align: center;
             color: #ea80b0;
-            text-shadow: 0 0 10px #fff;
-            font-family: 'Consolas', 'Courier New', monospace;
-            font-size: 22px;
-            transform: rotate(-30deg);
+            font-weight: 300;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        .control-group label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 12px;
+            color: #aaa;
+            font-weight: 400;
+        }
+        .control-group input[type="text"], 
+        .control-group select {
+            width: 100%;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            color: #fff;
+            padding: 8px;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .control-group input[type="text"]:focus,
+        .control-group select:focus {
+            border-color: #ea80b0;
+        }
+        .control-group input[type="color"] {
+            width: 100%;
+            height: 40px;
+            border: none;
+            padding: 0;
+            background: none;
+            cursor: pointer;
+        }
+        .control-group input[type="range"] {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 6px;
+            background: #444;
+            border-radius: 3px;
+            outline: none;
+        }
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #ea80b0;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .control-group input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+        #toggleControls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(20, 20, 20, 0.9);
+            color: #fff;
+            border: 1px solid #333;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 999;
+            font-family: 'Roboto', sans-serif;
+            display: none;
+        }
+        
+        /* Mobile friendly */
+        @media (max-width: 600px) {
+            #controls {
+                width: 80%;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                display: none; /* Hidden by default on mobile, toggle needed */
+            }
+            #controls.active {
+                display: block;
+            }
+            #toggleControls {
+                display: block;
+            }
         }
     </style>
 </head>
 <body>
 
 <canvas id="heartCanvas"></canvas>
+
+<button id="toggleControls">⚙️ Настройки</button>
+
+<div id="controls">
+    <h3>Редактор</h3>
+    <div class="control-group">
+        <label>Текст 1 (Левый)</label>
+        <input type="text" id="inputText1" value="Nasima">
+    </div>
+    <div class="control-group">
+        <label>Текст 2 (Правый)</label>
+        <input type="text" id="inputText2" value="I love you">
+    </div>
+    <div class="control-group">
+        <label>Цвет текста</label>
+        <input type="color" id="inputColor" value="#ea80b0">
+    </div>
+    <div class="control-group">
+        <label>Размер шрифта <span id="valSize">40</span>px</label>
+        <input type="range" id="inputSize" min="10" max="100" value="40">
+    </div>
+    <div class="control-group">
+        <label>Шрифт</label>
+        <select id="inputFont">
+            <option value="'Great Vibes', cursive">Great Vibes (Рукописный)</option>
+            <option value="'Courier New', monospace">Courier New (Печатный)</option>
+            <option value="Arial, sans-serif">Arial (Обычный)</option>
+            <option value="'Times New Roman', serif">Times New Roman (С засечками)</option>
+        </select>
+    </div>
+    <div class="control-group">
+        <label>Скорость <span id="valSpeed">20</span></label>
+        <input type="range" id="inputSpeed" min="0" max="100" value="20">
+    </div>
+    <div class="control-group">
+        <label>Плотность (Пресеты)</label>
+        <select id="inputDensity">
+            <option value="0.25">Стандартная</option>
+            <option value="0.15">Плотная</option>
+            <option value="0.4">Разреженная</option>
+            <option value="0.6">Очень редкая</option>
+        </select>
+    </div>
+    <div class="control-group">
+        <label>Количество линий (Слои) <span id="valLayers">5</span></label>
+        <input type="range" id="inputLayers" min="1" max="20" step="1" value="5">
+    </div>
+    <div class="control-group">
+        <label>Глубина слоев (Z) <span id="valSpread">3</span></label>
+        <input type="range" id="inputSpread" min="0" max="50" step="0.5" value="3">
+    </div>
+    <div class="control-group">
+        <label>Размер сердца <span id="valScale">14</span></label>
+        <input type="range" id="inputScale" min="5" max="30" step="1" value="14">
+    </div>
+</div>
 
 <script>
     const canvas = document.getElementById('heartCanvas');
@@ -35,33 +196,111 @@
     let width = canvas.width = window.innerWidth;
     let height = canvas.height = window.innerHeight;
 
-    // Данные из фото:
-    // Текст: "Nasima" (видно на картинке)
-    const text = "Nasima"; 
-    const text2 = "I love you";
-    
-    // Цвет: #ea80b0 (из CSS .love_word)
-    const color = "#ea80b0";
-    
-    // Свечение: 0 0 10px #fff (из CSS text-shadow)
-    const shadowColor = "#fff";
-    const shadowBlur = 10;
-    
-    // Шрифт: 1.4rem ~ 22px (из CSS font-size)
-    // Пишем чуть меньше, чтобы влезло в canvas 3D сцену красиво, или масштабируем сцену
-    const fontSize = 16; 
-    
-    // Наклон: -30deg (из CSS transform: rotateZ(-30deg))
-    // Для анимации "бегущей строки" обычно текст ориентирован по линии или горизонтально.
-    // Если нужно вернуть -30, раскомментируйте.
-    const textRotation = -30 * Math.PI / 180;
+    // Конфигурация (начальные значения)
+    const config = {
+        text1: "Nasima",
+        text2: "I love you",
+        color: "#ea80b0",
+        rgb: {r: 234, g: 128, b: 176},
+        fontSize: 40,
+        fontFamily: "'Great Vibes', cursive",
+        speed: 0.002,
+        density: 0.25,
+        layersCount: 5,
+        spreadZ: 3.0,
+        scale: 14,
+        shadowColor: "#fff",
+        shadowBlur: 10,
+        textRotation: -30 * Math.PI / 180,
+        angleY: 0.6,
+        angleX: 0.1
+    };
 
-    // Немного уменьшим масштаб сцены, так как шрифт стал крупнее
-    const scale = 14; 
+    // UI Элементы
+    const ui = {
+        text1: document.getElementById('inputText1'),
+        text2: document.getElementById('inputText2'),
+        color: document.getElementById('inputColor'),
+        size: document.getElementById('inputSize'),
+        font: document.getElementById('inputFont'),
+        speed: document.getElementById('inputSpeed'),
+        density: document.getElementById('inputDensity'),
+        layers: document.getElementById('inputLayers'),
+        spread: document.getElementById('inputSpread'),
+        scale: document.getElementById('inputScale'),
+        valSize: document.getElementById('valSize'),
+        valSpeed: document.getElementById('valSpeed'),
+        valLayers: document.getElementById('valLayers'),
+        valSpread: document.getElementById('valSpread'),
+        valScale: document.getElementById('valScale'),
+        toggle: document.getElementById('toggleControls'),
+        panel: document.getElementById('controls')
+    };
+
+    // Хелпер для конвертации hex в rgb
+    function hexToRgb(hex) {
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : null;
+    }
+
+    // Слушатели событий
+    ui.text1.addEventListener('input', (e) => config.text1 = e.target.value);
+    ui.text2.addEventListener('input', (e) => config.text2 = e.target.value);
     
+    ui.color.addEventListener('input', (e) => {
+        config.color = e.target.value;
+        config.rgb = hexToRgb(config.color);
+    });
+
+    ui.size.addEventListener('input', (e) => {
+        config.fontSize = parseInt(e.target.value);
+        ui.valSize.innerText = config.fontSize;
+    });
+
+    ui.font.addEventListener('change', (e) => {
+        config.fontFamily = e.target.value;
+    });
+
+    ui.speed.addEventListener('input', (e) => {
+        // range 0-100 -> speed 0.000 - 0.01
+        let val = parseInt(e.target.value);
+        config.speed = val / 10000; 
+        ui.valSpeed.innerText = val;
+    });
+
+    ui.density.addEventListener('change', (e) => {
+        config.density = parseFloat(e.target.value);
+    });
+
+    ui.layers.addEventListener('input', (e) => {
+        config.layersCount = parseInt(e.target.value);
+        ui.valLayers.innerText = config.layersCount;
+    });
+
+    ui.spread.addEventListener('input', (e) => {
+        config.spreadZ = parseFloat(e.target.value);
+        ui.valSpread.innerText = config.spreadZ;
+    });
+
+    ui.scale.addEventListener('input', (e) => {
+        config.scale = parseInt(e.target.value);
+        ui.valScale.innerText = config.scale;
+    });
+
+    ui.toggle.addEventListener('click', () => {
+        if (ui.panel.style.display === 'none' || ui.panel.style.display === '') {
+            ui.panel.style.display = 'block';
+        } else {
+            ui.panel.style.display = 'none';
+        }
+    });
+
     // Глобальный сдвиг для анимации текста
     let textOffset = 0;
-    const speed = 0.002; // Еще медленнее (было 0.005)
 
     // Функция для получения точки на сердце
     function getHeartPoint(t) {
@@ -69,10 +308,6 @@
         let y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
         return {x, y};
     }
-
-    // Устанавливаем фиксированный угол поворота для вида сбоку (как на фото)
-    let angleY = 0.6; // Примерно 35 градусов
-    const angleX = 0.1; // Небольшой наклон, чтобы лучше читалась форма 
 
     function render() {
         ctx.fillStyle = '#000';
@@ -82,54 +317,64 @@
         const cy = height / 2;
 
         // Обновляем позицию текста (бегущая строка)
-        textOffset -= speed;
+        textOffset -= config.speed;
 
         // Добавляем пульсацию (биение сердца)
         const time = Date.now() / 1000;
-        // Формула для плавного биения: sin(t * speed)
-        // scale = 14 + Math.sin(time * 3) * 0.5; 
-        // Или более сложная, похожая на сердце:
         const beat = Math.sin(time * 5) * 0.5 + Math.sin(time * 10) * 0.2;
-        const currentScale = scale + beat;
+        const currentScale = config.scale + beat;
 
         // Настраиваем стили текста
-        ctx.font = `${fontSize}px "Consolas", "Courier New", monospace`;
+        ctx.font = `${config.fontSize}px ${config.fontFamily}`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         
         // Применяем свечение
-        ctx.shadowColor = shadowColor;
-        ctx.shadowBlur = shadowBlur;
+        ctx.shadowColor = config.shadowColor;
+        ctx.shadowBlur = config.shadowBlur;
         
-        // Letter spacing (поддержка в современных браузерах)
         if (ctx.letterSpacing !== undefined) {
             ctx.letterSpacing = "2px";
         }
 
         let projected = [];
 
-        // Генерируем точки динамически каждый кадр для эффекта движения
-        // Оставляем только ДВА слоя (как две строчки)
-        const layers = [
-            { z: -1.5, text: text },      // Левая линия (Nasima)
-            { z: 1.5, text: text2 }       // Правая линия (I love you)
-        ];
+        // Слои текста
+        const layers = [];
+        
+        // Автоматически распределяем слои по Z
+        // Диапазон Z (глубина)
+        const spreadZ = config.spreadZ;
+        
+        if (config.layersCount <= 1) {
+            layers.push({ z: 0, text: config.text1 });
+        } else {
+            for (let i = 0; i < config.layersCount; i++) {
+                // Равномерное распределение от -spreadZ/2 до +spreadZ/2
+                let z = -spreadZ/2 + (i * spreadZ / (config.layersCount - 1));
+                // Чередуем текст
+                let txt = (i % 2 === 0) ? config.text1 : config.text2;
+                layers.push({ z: z, text: txt });
+            }
+        }
 
         layers.forEach(layer => {
-            for (let t = 0; t < Math.PI * 2; t += 0.1) {
-                // Смещаем t на textOffset, чтобы создать эффект движения вдоль кривой
+            // Используем config.density как шаг
+            // Защита от зависания при 0
+            let step = Math.max(0.05, config.density);
+            
+            for (let t = 0; t < Math.PI * 2; t += step) {
                 let currentT = t + textOffset;
                 
                 let {x, y} = getHeartPoint(currentT);
                 
-                // 3D вращение (статичное angleY)
-                // Используем layer.z вместо z цикла
-                let rx = x * Math.cos(angleY) - (layer.z * 2.5) * Math.sin(angleY);
-                let rz = x * Math.sin(angleY) + (layer.z * 2.5) * Math.cos(angleY);
+                // 3D вращение
+                let rx = x * Math.cos(config.angleY) - (layer.z * 2.5) * Math.sin(config.angleY);
+                let rz = x * Math.sin(config.angleY) + (layer.z * 2.5) * Math.cos(config.angleY);
                 let ry = y;
 
-                let finalY = ry * Math.cos(angleX) - rz * Math.sin(angleX);
-                let finalZ = ry * Math.sin(angleX) + rz * Math.cos(angleX);
+                let finalY = ry * Math.cos(config.angleX) - rz * Math.sin(config.angleX);
+                let finalZ = ry * Math.sin(config.angleX) + rz * Math.cos(config.angleX);
 
                 let perspective = 600 / (600 + finalZ * currentScale);
                 let px = cx + rx * currentScale * perspective;
@@ -140,7 +385,7 @@
                     py: py,
                     depth: finalZ,
                     perspective: perspective,
-                    text: layer.text // Передаем текст для отрисовки
+                    text: layer.text
                 });
             }
         });
@@ -152,17 +397,17 @@
             
             let alpha = Math.max(0.1, Math.min(1, p.perspective));
             
-            // Преобразуем hex #ea80b0 в rgba для прозрачности
-            // #ea80b0 -> r=234, g=128, b=176
-            ctx.fillStyle = `rgba(234, 128, 176, ${alpha})`;
+            // Используем динамический цвет
+            if (config.rgb) {
+                ctx.fillStyle = `rgba(${config.rgb.r}, ${config.rgb.g}, ${config.rgb.b}, ${alpha})`;
+            } else {
+                ctx.fillStyle = config.color;
+            }
             
-            // Отрисовка текста (две строки)
-            // Если нужно вращать текст вместе с кривизной, здесь можно добавить rotate
             ctx.save();
             ctx.translate(p.px, p.py);
-            if (textRotation !== 0) ctx.rotate(textRotation);
+            if (config.textRotation !== 0) ctx.rotate(config.textRotation);
             
-            // Рисуем текст, соответствующий слою
             ctx.fillText(p.text, 0, 0);
             
             ctx.restore();
